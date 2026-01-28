@@ -59,7 +59,7 @@ Console AWS → **Billing** → **Billing preferences** → activer **Free Tier 
 Console AWS → **AWS Budgets** → Create budget → **Cost budget** → Monthly → montant **1€** (ou 1$) → alerte email (ex:
 80% + 100%).
 
-Preuves recommandées (captures) :
+Preuves (captures d'écrans) :
 
 - ![Budget + alertes](docs/proofs/budget-alertes.jpeg)
 
@@ -71,8 +71,8 @@ Preuves recommandées (captures) :
 ## 3) Installation du projet
 
 ```powershell
-git clone <URL_DU_REPO>
-cd tp-aws-events
+git clone https://github.com/afthegamer/tp-aws
+cd tp-aws
 npm i
 ```
 
@@ -81,9 +81,9 @@ Notes Windows :
 - Le build SAM peut rencontrer des soucis de chemins trop longs/symlinks. Le contournement propre :
 
 ```powershell
-subst X: "C:\chemin\vers\tp-aws-events"
+subst X: "C:\chemin\vers\tp-aws"
 X:
-cd X:\tp-aws-events
+cd X:\tp-aws
 ```
 
 ---
@@ -138,7 +138,7 @@ sam build --no-cached -t .\template.yml
 
 sam deploy `
   --template-file .\.aws-sam\build\template.yml `
-  --stack-name tp-aws-events `
+  --stack-name tp-aws `
   --region eu-west-3 `
   --capabilities CAPABILITY_IAM `
   --resolve-s3 `
@@ -147,11 +147,11 @@ sam deploy `
 
 ### 5.1 Récupérer les outputs (URLs, bucket…)
 
-Après le deploy, SAM affiche les outputs. Tu peux aussi les relire :
+Après le deploy, SAM affiche les outputs. On peux aussi les relire :
 
 ```powershell
 aws cloudformation describe-stacks `
-  --stack-name tp-aws-events `
+  --stack-name tp-aws `
   --region eu-west-3 `
   --query "Stacks[0].Outputs" `
   --output table
@@ -163,7 +163,7 @@ aws cloudformation describe-stacks `
 
 Base URL :
 
-- `https://<api-id>.execute-api.eu-west-3.amazonaws.com`
+- `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com`
 
 Endpoints minimum :
 
@@ -173,6 +173,16 @@ Endpoints minimum :
 4. `PUT /events/{id}`
 5. `DELETE /events/{id}`
 6. `POST /events/{id}/upload-url`
+
+Exemples d'URLs complètes :
+
+- `GET https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/hello`
+- `POST https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events`
+- `GET https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events`
+- `GET https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events/{eventId}`
+- `PUT https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events/{eventId}`
+- `DELETE https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events/{eventId}`
+- `POST https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com/events/{eventId}/upload-url`
 
 ---
 
@@ -235,7 +245,7 @@ Caractéristiques :
 Définir la base (remplace par ta vraie URL) :
 
 ```powershell
-$base = "https://<api-id>.execute-api.eu-west-3.amazonaws.com"
+$base = "https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com"
 ```
 
 ### 10.1 Create (date obligatoire)
@@ -299,12 +309,12 @@ Le handler log en JSON avec au minimum :
 Lire les logs en live :
 
 ```powershell
-sam logs -n HelloWorldFunction --stack-name tp-aws-events --region eu-west-3 --tail
+sam logs -n HelloWorldFunction --stack-name tp-aws --region eu-west-3 --tail
 ```
 
 ### 11.2 Vérifier la rétention CloudWatch
 
-Si la rétention est appliquée via IaC, elle doit être déjà à 7. Sinon, tu peux la forcer via CLI :
+Si la rétention est appliquée via IaC, elle doit être déjà à 7. Sinon, on peux la forcer via CLI :
 
 ```powershell
 aws logs put-retention-policy `
@@ -318,7 +328,7 @@ Vérifier :
 ```powershell
 aws logs describe-log-groups `
   --region eu-west-3 `
-  --log-group-name-prefix "/aws/lambda/tp-aws-events-HelloWorldFunction" `
+  --log-group-name-prefix "/aws/lambda/tp-aws-HelloWorldFunction" `
   --query "logGroups[0].retentionInDays" `
   --output text
 ```
@@ -364,7 +374,7 @@ Exemples de choses testées :
 
 ---
 
-## 14) Dépannage (les pièges classiques)
+## 14) Dépannage (les pièges possible)
 
 ### 14.1 Windows + curl + JSON
 
@@ -392,19 +402,7 @@ Cause typique : déploiement du mauvais template / mauvais package. Solution :
 
 ---
 
-## 15) Rollback (retour arrière)
-
-Rollback “simple” (le plus fiable) :
-
-1. `git checkout <commit/tag>` (version précédente)
-2. `sam build --no-cached -t .\template.yml`
-3. `sam deploy --template-file .\.aws-sam\build\template.yml ...`
-
-CloudFormation applique la version redeployée et revient de fait à l’état précédent.
-
----
-
-## 16) Nettoyage (suppression complète)
+## 15) Nettoyage (suppression complète)
 
 1) Vider le bucket (si des fichiers existent) :
 
@@ -415,19 +413,7 @@ aws s3 rm "s3://<EventsBucketName>" --recursive
 2) Supprimer la stack :
 
 ```powershell
-sam delete --stack-name tp-aws-events --region eu-west-3
-```
-
----
-
-## 17) Preuves (comment les inclure dans le README)
-
-Place les fichiers dans `docs/proofs/` puis référence-les en markdown (chemins relatifs). Exemple :
-
-```md
-![Outputs CloudFormation](docs/proofs/cloudformation-outputs.png)
-![Budget 1€](docs/proofs/budget-1eur.png)
-![Free Tier alerts](docs/proofs/billing-free-tier-alerts.png)
+sam delete --stack-name tp-aws --region eu-west-3
 ```
 
 ---
@@ -435,6 +421,6 @@ Place les fichiers dans `docs/proofs/` puis référence-les en markdown (chemins
 ## 18) Résultats de mon déploiement (à remplir)
 
 - Région : `eu-west-3`
-- Stack : `tp-aws-events`
-- Base URL : `https://<api-id>.execute-api.eu-west-3.amazonaws.com`
+- Stack : `tp-aws`
+- Base URL : `https://z7sn1zzeth.execute-api.eu-west-3.amazonaws.com`
 - Bucket S3 : `<EventsBucketName>`
