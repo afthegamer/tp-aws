@@ -467,7 +467,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEventV2): Promise<APIG
             errorMessage: err instanceof Error ? err.message : String(err),
             errorStack: err instanceof Error ? err.stack : undefined,
         });
-
+        //test commit
         return json(500, { error: 'Internal Server Error' });
     }
 };
