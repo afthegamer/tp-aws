@@ -418,7 +418,7 @@ sam delete --stack-name tp-aws --region eu-west-3
 
 ---
 
-## 18) Résultats de mon déploiement (à remplir)
+## 18) Résultats de mon déploiement
 
 - Région : `eu-west-3`
 - Stack : `tp-aws-events`
